@@ -1,100 +1,109 @@
 <?php
 require_once 'init.php';
-require_once "db.php";
-require_once "functions.php";
-
+require_once 'db.php';
+require_once 'functions.php';
 
 if(!isset($_SESSION['email'])){
     header("Location: login.php");
+    exit;
 }
 
-if($_SESSION['rol'] !== 'admin' ){
+if($_SESSION['rol'] != 'ADMIN' ){
     header("Location: index.php");
+    exit;
 }
+
+if(isset($_GET['eliminar_peli'])){
+    borrarPelicula($conexion, $_GET['eliminar_peli']);
+    header("Location: admin.php");
+    exit;
+
+}
+
+$peliculas = obtenerPeliculas($conexion);
+$usuarios=obtenerUsuarios($conexion);
 
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Panel Admin - MoodPlay</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-100 font-sans">
+<?php
+include_once 'header.php';
 
-   
-    <nav class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg">
-        <h1 class="text-xl font-bold">MoodPlay Backend</h1>
-        <a href="logout.php" class="bg-red-500 px-4 py-2 rounded hover:bg-red-600 transition">Cerrar Sesión</a>
+
+
+?>
+
+
+
+<body class="bg-gray-900 min-h-screen text-white font-sans">
+
+    <nav class="sticky top-0 z-10 bg-gray-950/80 backdrop-blur-md text-white p-4 flex justify-between items-center shadow-lg border-b border-white/10">
+        <a href="index.php"><img src="img/logomoodplay.png" class="h-10 w-auto hover:scale-105 transition-all duration-300"></a> 
+        <h1 class="text-xl font-bold tracking-wider uppercase text-emerald-400">Panel Admin</h1>
+        <div class="flex items-center gap-4">
+            <a href="index.php" class="border border-emerald-500/50 bg-emerald-500/20 text-emerald-300 text-xs px-3.5 py-1.5 hover:bg-emerald-500/40 rounded-full transition-all uppercase font-semibold">Ver Tienda</a>
+            <a href="logout.php" class="border border-red-500/50 bg-red-500/20  text-red-200 text-xs px-3.5 py-1.5 rounded-full transition-all uppercase font-semibold hover:bg-red-500/40">Cerrar Sesión</a>
+        </div>
     </nav>
 
     <main class="p-8 max-w-6xl mx-auto">
-        
-      
-        <section class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 class="text-2xl font-semibold mb-4 text-slate-800">Añadir Nueva Película / Serie</h2>
-            <form action="procesar_peli.php" method="POST" enctype="multipart/form-data" class="grid grid-cols-2 gap-4">
-                <input type="text" name="titulo" placeholder="Título" required class="border p-2 rounded ring-1 ring-slate-200 focus:ring-blue-500 outline-none">
-                <input type="number" step="0.01" name="precio" placeholder="Precio (Ej: 9.99)" required class="border p-2 rounded ring-1 ring-slate-200 focus:ring-blue-500 outline-none">
-                <textarea name="descripcion" placeholder="Descripción" class="border p-2 rounded col-span-2 ring-1 ring-slate-200 focus:ring-blue-500 outline-none"></textarea>
-                <div class="flex flex-col">
-                    <label class="text-sm text-slate-500 mb-1">Imagen de Portada</label>
-                    <input type="file" name="imagen" class="text-sm">
-                </div>
-                <button type="submit" class="bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 transition col-span-2">
-                    Guardar Producto
-                </button>
-            </form>
-        </section>
+        <a href="crearpeli.php" class="fixed bottom-8 right-8 z-50 flex items-center gap-2 border border-white/50 bg-emerald-600/30 hover:bg-emerald-500 hover:scale-105 backdrop-blur-md text-white font-bold py-3 px-6 rounded-full shadow-2xl transition-all duration-300 uppercase text-sm">
+           + Añadir Nueva Película
+        </a>
 
-       
-        <section class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 class="text-2xl font-semibold mb-4 text-slate-800">Inventario de Películas</h2>
+        <section class="bg-violet-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-white drop-shadow-md">Inventario</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b-2 border-slate-100">
-                            <th class="p-3 text-slate-600">ID</th>
-                            <th class="p-3 text-slate-600">Miniatura</th>
-                            <th class="p-3 text-slate-600">Título</th>
-                            <th class="p-3 text-slate-600">Precio</th>
-                            <th class="p-3 text-center text-slate-600">Acciones</th>
+                        <tr class="border-b border-white/10">
+                            <th class="p-3 text-slate-300 font-semibold uppercase text-xs">ID</th>
+                            <th class="p-3 text-slate-300 font-semibold uppercase text-xs">Imagen</th>
+                            <th class="p-3 text-slate-300 font-semibold uppercase text-xs">Título</th>
+                            <th class="p-3 text-slate-300 font-semibold uppercase text-xs">Precio</th>
+                            <th class="p-3 text-slate-300 font-semibold uppercase text-xs">Stock</th>
+                            <th class="p-3 text-center text-slate-300 font-semibold uppercase text-xs"></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php foreach($peliculas as $peli): ?>
-                        <tr class="border-b border-slate-50 hover:bg-slate-50 transition">
-                            <td class="p-3 text-slate-500"><?= $peli->id_pelicula ?></td>
+                    <tbody class="divide-y divide-white/5">
+                      <?php foreach($peliculas as $peli){ ?>
+                        <tr class="hover:bg-white/5 transition">
+                            <td class="p-3 text-slate-400"><?= $peli->id_pelicula ?></td>
                             <td class="p-3">
-                                <img src="img/<?= $peli->imagen ?>" class="w-12 h-16 object-cover rounded shadow-sm" alt="Portada">
+                                <img src="img/<?= $peli->imagen ?>" class="w-12 h-16 object-cover rounded shadow-md border border-white/10">
                             </td>
-                            <td class="p-3 font-medium text-slate-700"><?= $peli->titulo ?></td>
-                            <td class="p-3 text-blue-600 font-bold"><?= $peli->precio ?>€</td>
-                            <td class="p-3 flex justify-center gap-2">
-                                <a href="editar_peli.php?id=<?= $peli->id_pelicula ?>" class="bg-amber-400 text-white px-3 py-1 rounded text-sm hover:bg-amber-500">Editar</a>
-                                <a href="admin.php?eliminar_peli=<?= $peli->id_pelicula ?>" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600" onclick="return confirm('¿Eliminar película?')">Eliminar</a>
+                            <td class="p-3 font-semibold text-white"><?= $peli->titulo ?></td>
+                            <td class="p-3 text-emerald-400 font-bold"><?= $peli->precio ?>€</td>
+                            <td class="p-3">
+                                <?php if($peli->stock > 0){ ?>
+                                    <span class="text-slate-300 font-medium"><?= $peli->stock ?> uds</span>
+                                <?php }else{ ?>
+                                    <span class="text-red-400 font-bold uppercase text-xs">Sin stock</span>
+                                <?php } ?>
+                            </td>
+                            <td class="p-3">
+                                <div class="flex justify-center gap-2">
+                                    <a href="editarpeli.php?id=<?= $peli->id_pelicula ?>" class="border border-amber-500/50 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 text-xs px-3.5 py-1.5 rounded-full transition-all uppercase font-bold">Editar</a>
+                                    <a href="admin.php?eliminar_peli=<?= $peli->id_pelicula ?>" class="uppercase font-bold border border-red-500/50 bg-red-500/20 hover:bg-red-500/40 text-red-300 text-xs px-3.5 py-1.5 rounded-full transition-all" onclick="return confirm('¿Eliminar del inventario?')">Eliminar</a>
+                                </div>
                             </td>
                         </tr>
-                        <?php endforeach; ?>
+                      <?php } ?>
                     </tbody>
                 </table>
             </div>
         </section>
 
-       
-        <section class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4 text-slate-800">Clientes Registrados</h2>
-            <ul class="divide-y divide-slate-100">
-                <?php foreach($usuarios as $user): ?>
-                <li class="py-3 flex justify-between items-center">
-                    <div>
-                        <p class="font-medium text-slate-700"><?= $user->nombre ?></p>
-                        <p class="text-sm text-slate-400"><?= $user->email ?></p>
+        <section class="bg-green-900/60 rounded-2xl p-6 shadow-2xl backdrop-blur-md border border-white/10">
+            <h2 class="text-2xl font-bold mb-6 text-white drop-shadow-md">Clientes Registrados</h2>
+            <ul class="divide-y divide-white/5">
+              <?php foreach($usuarios as $usuario){ ?>
+                <li class="py-3.5">
+                    <div class="flex flex-col gap-0.5">
+                        <p class="font-semibold text-white"><?= $usuario->nombre ?></p>
+                        <p class="text-sm text-slate-400"><?= $usuario->email ?></p>
                     </div>
-                    <button class="text-red-500 hover:underline text-sm font-semibold">Eliminar Acceso</button>
                 </li>
-                <?php endforeach; ?>
+              <?php } ?>
             </ul>
         </section>
 

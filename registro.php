@@ -16,25 +16,8 @@ if($_SERVER['REQUEST_METHOD'] =='POST'){
 
         $pass_hased = password_hash($password, PASSWORD_DEFAULT);
 
-        $stmt = $conexion->prepare("INSERT INTO usuarios(nombre, email, password, rol) VALUES (:n, :e, :p, 'user')");
+        $stmt = $conexion->prepare("INSERT INTO usuarios(nombre, email, password, rol) values (:n, :e, :p, 'user')");
         $stmt->execute([':n'=>$nombre, ':p'=>$pass_hased, ':e'=>$email]);
-
-        $userId = $conexion->lastInsertId();
-
-        if(isset($_FILES['foto'])){
-            $fileName = $_FILES['foto']['name'];
-            $fileTemp = $_FILES['foto']['tmp_name'];
-
-            $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-
-            $destino = 'uploads/' . $userId . '.' . "$fileExtension";
-
-            move_uploaded_file($fileTemp,$destino);
-
-        } else {
-            $mensaje = "No has subido una imagen";
-        }
-        
     } else {
         $mensaje = "Email o contraseña vacíos";
     }
@@ -44,39 +27,45 @@ if($_SERVER['REQUEST_METHOD'] =='POST'){
 
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Registro - MoodPlay</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-900 flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
-        <h1 class="text-3xl font-bold mb-2 text-slate-800">Crea tu cuenta</h1>
-        <p class="text-slate-500 mb-8">Únete a la plataforma de streaming líder.</p>
+<?php
 
-        <form action="registro.php" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
-                <input type="text" name="nombre" required class="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+include_once 'header.php';
+?>
+
+
+<body class="bg-gradient-to-tr from-violet-400 via-gray-950 to-green-300 flex flex-col items-center justify-center min-h-screen p-4 text-white">
+    <div class="w-full max-w-xs flex flex-col items-center">
+        <div class="mb-10 flex flex-col items-center">
+            <img src="img/logomoodplaylogin.png" alt="MoodPlay Logo" class="h-28 w-auto">
+        </div>
+        <?php if($mensaje != ''){ ?>
+            <div class="mb-4 text-red-400 text-sm font-semibold text-center bg-red-950/40 border border-red-800 p-2.5 rounded w-full">
+                <?= $mensaje ?>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                <input type="email" name="email" required class="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+        <?php } ?>
+        
+        <form action="registro.php" method="POST" class="w-full flex flex-col gap-6">
+            <div class="w-full border-b border-slate-500 focus-within:border-white transition-all py-1">
+                <input type="text" name="nombre" placeholder="Nombre Completo" required class="w-full bg-transparent text-white outline-none py-2 placeholder-slate-400 pr-8 text-sm">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-                <input type="password" name="password" required class="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+            <div class="w-full border-b border-slate-500 focus-within:border-white transition-all py-1">
+                <input type="email" name="email" placeholder="Email" required class="w-full bg-transparent text-white outline-none py-2 placeholder-slate-400 pr-8 text-sm">
             </div>
-            
-            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all">
-                Crear cuenta
-            </button>
-            
-            <p class="text-center text-sm text-slate-500 mt-4">
-                ¿Ya eres miembro? <a href="login.php" class="text-blue-600 hover:underline">Inicia sesión</a>
-            </p>
+            <div class="w-full border-b border-slate-500 focus-within:border-white transition-all py-1">
+                <input type="password" name="password" placeholder="Contraseña" required class="w-full bg-transparent text-white outline-none py-2 placeholder-slate-400 pr-8 text-sm">
+            </div>
+            <div class="flex justify-center mt-6">
+                <button type="submit" class="border border-white bg-emerald-500/20 hover:bg-emerald-500/40 text-white font-bold py-2.5 px-16 rounded-full transition-all uppercase">
+                    Registrarme
+                </button>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-xs text-slate-400">
+                    ¿Ya eres miembro?
+                    <a href="login.php" class="text-emerald-400 hover:text-emerald-300 underline font-semibold transition">Inicia sesión</a>
+                </p>
+            </div>
         </form>
     </div>
 </body>

@@ -1,8 +1,7 @@
 <?php
-
+require_once 'init.php';
 require_once 'db.php';
 
-require_once 'init.php';
 $mensaje = '';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
@@ -10,7 +9,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $password = isset($_POST['password']) ? $_POST['password'] : '';
     $recordarme = isset($_POST['recordarme']);
 
-    $stmt = $conexion->prepare('SELECT password, rol from usuarios where email = :email');
+    $stmt = $conexion->prepare('SELECT nombre, password, rol from usuarios where email = :email');
 
     $stmt->bindParam(':email', $email);
 
@@ -20,16 +19,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $fila = $stmt->fetch(PDO::FETCH_ASSOC);
         $hash = $fila['password'];
         $rol = $fila['rol'];
+        $nombre = $fila['nombre'];
 
         if(password_verify($password, $hash)){
+            $_SESSION['nombre'] = $nombre;
             $_SESSION['email'] = $email;
             $_SESSION['rol'] = $rol;
 
             if($recordarme){
-                setcookie('email', $email, time() + 86400 * 30, '/');
+                setcookie('session_activa', session_id(), time() + 60*60*24*365, '/');
             }
 
-            header("Location: index.php");
+            if($_SESSION['rol'] != 'ADMIN' ){
+                header("Location: index.php");
+            }else{
+                header("Location: admin.php");
+            }
         }else{
             $mensaje = "<p class='text-red-500'>Email o contraseña incorrectos</p>";
         }
@@ -39,33 +44,50 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 
-
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Login - MoodPlay</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-900 flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-2xl w-96">
-        <h1 class="text-2xl font-bold mb-6 text-center text-slate-800">Acceso MoodPlay</h1>
-        <form action="login.php" method="POST" class="flex flex-col gap-4">
-            <input type="email" name="email" placeholder="Email" required 
-                   class="border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
-            <input type="password" name="password" placeholder="Contraseña" required 
-                   class="border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
-            <button type="submit" class="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-                Entrar
-            </button>
-    
-            <div class="text-center mt-4 border-t pt-4">
-                <p class="text-sm text-slate-500 mb-2">¿No tienes cuenta?</p>
-                <a href="registro.php" class="inline-block w-full border border-blue-600 text-blue-600 py-2 rounded hover:bg-blue-50 transition font-medium">
-                    Registrarme
-                </a>
+<?php
+
+include_once 'header.php';
+?>
+
+
+
+<body class="bg-gradient-to-tr from-violet-400 via-gray-950 to-green-300 flex flex-col items-center justify-center min-h-screen p-4 text-white">
+    <div class="w-full max-w-xs flex flex-col items-center">
+        <div class="mb-10 flex flex-col items-center">
+            <img src="img/logomoodplaylogin.png" alt="MoodPlay Logo" class="h-28 w-auto">
+        </div>
+        
+        <?php if($mensaje != ''){ ?>
+            <div class="mb-4 text-red-400 text-sm font-semibold text-center bg-red-950/40 border border-red-800 p-2.5 rounded w-full">
+                <?= $mensaje ?>
+            </div>
+        <?php } ?>
+        
+        <form action="login.php" method="POST" class="w-full flex flex-col gap-6">
+            <div class="w-full border-b border-slate-500 focus-within:border-white transition-all py-1">
+                <input type="email" name="email" placeholder="Username or Email" required class="w-full bg-transparent text-white outline-none py-2 placeholder-slate-400 pr-8 text-sm">
+            </div>
+            <div class="w-full border-b border-slate-500 focus-within:border-white transition-all py-1">
+                <input type="password" name="password" placeholder="Contraseña" required class="w-full bg-transparent text-white outline-none py-2 placeholder-slate-400 pr-8 text-sm">
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="recordarme" id="recordarme" class="w-4 h-4">
+                <label for="recordarme" class="text-xs text-slate-300">
+                    Recordar mi sesión
+                </label>
+            </div>
+            <div class="flex justify-center mt-6">
+                <button type="submit" class="border border-white bg-emerald-500/20 hover:bg-emerald-500/40 text-white font-bold py-2.5 px-16 rounded-full transition-all uppercase">
+                    Log In
+                </button>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-xs text-slate-400">
+                    ¿No tienes cuenta?
+                    <a href="registro.php" class="text-emerald-400 hover:text-emerald-300 underline font-semibold transition">Registrarme</a>
+                </p>
             </div>
         </form>
     </div>
