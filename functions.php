@@ -2,9 +2,16 @@
 
 // FUNCIONALIDADES CRUD DEL PANEL DE ADMINISTRADOR
 // Estas 3 primeras funciones son para recoger los datos de la base de datos mediante consultas (READ). Las siguientes son para el resto de las funcionalidades CRUD: CREATE, DELETE y UPDATE.
-function obtenerPeliculas($conexion) {
-    $stmt = $conexion->query("SELECT * from peliculas");
+function obtenerPeliculas($conexion, $id_categoria = null) {
+    if ($id_categoria) {
+        $stmt = $conexion->prepare("SELECT * from peliculas where id_categoria = :id_categoria");
+        $stmt->execute([':id_categoria' => $id_categoria]);
+    } else {
+        $stmt = $conexion->query("SELECT * from peliculas");
+    }
     $resultado = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+    
     return $resultado;
 }
 

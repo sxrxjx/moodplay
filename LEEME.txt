@@ -1,0 +1,15 @@
+MOODPLAY es una aplicación web desarrollada como tienda online de películas y series, diseñada con un enfoque futurista, adaptado al diseño del wireframe original realizado en la asignatura de Figma. La idea principal es ofrecer un catálogo interactivo donde los usuarios puedan registrarse, iniciar sesión y explorar títulos filtrándolos por categorías adaptadas a su mood.
+
+Para la parte técnica y de diseño, he optado por una estética limpia en modo oscuro, utilizando fondos con degradados, colores lilas y verdes, paneles semitransparentes con blur y la tipografía personalizada MuseoModerno para darle un toque futurista y relajado. He estructurado el proyecto desde cero utilizando PHP para toda la lógica del backend (sesiones, base de datos y operaciones CRUD completas) y Tailwind CSS para conseguir una interfaz totalmente responsive, rápida y atractiva. Además, el proyecto incluye un panel de administración privado donde se puede gestionar de forma segura todo el inventario de películas (añadir, editar, eliminar y controlar el stock en tiempo real) y ver la lista de clientes registrados en la plataforma.
+
+La idea es mejorar y ampliar la aplicación de forma que, una vez el usuario inicia sesión, se le pasa un cuestionario rápido que registra so mood (alegre, triste, furiosx, etc), y muestra las categorías correspondientes a su mood, con sus películas y seríes escogidas.
+
+La ruta del log in es: http://localhost/moodplay/login.php
+
+Para acceder al panel de admin, la ruta es http://localhost/moodplay/admin.php y las claves para el log in de admin son:
+- email: admin@test.com
+- contraseña: admin123
+
+Para acceder como usuario, las claves son:
+- email: sara@test.com
+- contraseña: 1234567

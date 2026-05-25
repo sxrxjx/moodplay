@@ -33,7 +33,7 @@ include_once 'header.php';
 ?>
 
 
-<body class="bg-gradient-to-tr from-violet-400 via-gray-950 to-green-300 flex flex-col items-center justify-center min-h-screen p-4 text-white">
+<body class="bg-gradient-to-tr from-violet-400 via-gray-950 to-green-300 flex flex-col items-center justify-center min-h-screen p-4 text-white font-museo">
     <div class="w-full max-w-xs flex flex-col items-center">
         <div class="mb-10 flex flex-col items-center">
             <img src="img/logomoodplaylogin.png" alt="MoodPlay Logo" class="h-28 w-auto">

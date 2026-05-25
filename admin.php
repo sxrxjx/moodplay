@@ -20,7 +20,8 @@ if(isset($_GET['eliminar_peli'])){
 
 }
 
-$peliculas = obtenerPeliculas($conexion);
+$peliculas = obtenerPeliculas($conexion, null);
+
 $usuarios=obtenerUsuarios($conexion);
 
 ?>
@@ -49,7 +50,7 @@ include_once 'header.php';
         <a href="crearpeli.php" class="fixed bottom-8 right-8 z-50 flex items-center gap-2 border border-white/50 bg-emerald-600/30 hover:bg-emerald-500 hover:scale-105 backdrop-blur-md text-white font-bold py-3 px-6 rounded-full shadow-2xl transition-all duration-300 uppercase text-sm">
            + Añadir Nueva Película
         </a>
-
+<!-- AQUÍ MOSTRAMOS TODAS LAS PELÍCULAS Y SERIES DISPONIBLES. Como no necesitamos dividir por categorías, en obtenerPeliculas hemos pasado el valor null como categoría. -->
         <section class="bg-violet-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl mb-8">
             <h2 class="text-2xl font-bold mb-6 text-white drop-shadow-md">Inventario</h2>
             <div class="overflow-x-auto">
@@ -83,6 +84,7 @@ include_once 'header.php';
                             <td class="p-3">
                                 <div class="flex justify-center gap-2">
                                     <a href="editarpeli.php?id=<?= $peli->id_pelicula ?>" class="border border-amber-500/50 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 text-xs px-3.5 py-1.5 rounded-full transition-all uppercase font-bold">Editar</a>
+                                    <!-- Para que al pulsar el botón de eliminar, el administrador tenga que hacer una confirmación, he añadido un onclick con un confirm para que sea seguro. -->
                                     <a href="admin.php?eliminar_peli=<?= $peli->id_pelicula ?>" class="uppercase font-bold border border-red-500/50 bg-red-500/20 hover:bg-red-500/40 text-red-300 text-xs px-3.5 py-1.5 rounded-full transition-all" onclick="return confirm('¿Eliminar del inventario?')">Eliminar</a>
                                 </div>
                             </td>
@@ -92,7 +94,7 @@ include_once 'header.php';
                 </table>
             </div>
         </section>
-
+<!-- también he añadido al panel admin una ventana para ver los usuarios registrados. -->
         <section class="bg-green-900/60 rounded-2xl p-6 shadow-2xl backdrop-blur-md border border-white/10">
             <h2 class="text-2xl font-bold mb-6 text-white drop-shadow-md">Clientes Registrados</h2>
             <ul class="divide-y divide-white/5">
